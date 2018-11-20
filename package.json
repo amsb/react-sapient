@@ -1,0 +1,46 @@
+{
+  "name": "react-sapient",
+  "version": "0.1.1",
+  "author": "Alexander M. Sauer-Budge",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amsb/react-sapient.git"
+  },
+  "keywords": [
+    "react",
+    "state management"
+  ],
+  "main": "dist/react-sapient.cjs.js",
+  "module": "dist/react-sapient.esm.js",
+  "browser": "dist/react-sapient.umd.js",
+  "dependencies": {
+    "immer": "^1.7.4",
+    "prop-types": "^15.6.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.1.6",
+    "@babel/preset-react": "^7.0.0",
+    "react": "^16.6.3",
+    "rollup": "^0.67.3",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0"
+  },
+  "peerDependencies": {
+    "react": "^16.6.3"
+  },
+  "scripts": {
+    "build": "NODE_ENV=production rollup -c",
+    "prepare": "npm run build",
+    "dev": "rollup -c -w",
+    "test": "node test/test.js",
+    "pretest": "npm run build"
+  },
+  "files": [
+    "dist"
+  ]
+}
