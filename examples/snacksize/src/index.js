@@ -24,20 +24,20 @@ const api = createApi({
   }
 });
 
-function PostView({ postId }) {
-  return (
-    <api.UsePost id={postId}>
-      {(post, { updatePost }) => (
-        <PostItem post={post} updatePost={updatePost} />
-      )}
-    </api.UsePost>
-  );
-}
-
 // function PostView({ postId }) {
-//   const [post, { updatePost }] = api.usePost(postId);
-//   return <PostItem post={post} updatePost={updatePost} />;
+//   return (
+//     <api.UsePost id={postId}>
+//       {(post, { updatePost }) => (
+//         <PostItem post={post} updatePost={updatePost} />
+//       )}
+//     </api.UsePost>
+//   );
 // }
+
+function PostView({ postId }) {
+  const [post, { updatePost }] = api.usePost(postId);
+  return <PostItem post={post} updatePost={updatePost} />;
+}
 
 const PostItem = React.memo(({ post, updatePost }) => (
   <>

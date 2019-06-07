@@ -1,17 +1,11 @@
 # react-sapient
 React Web APIs for Humans
 
-<div style="text-align: center; font-weight: bold">
-UNSTABLE PREVIEW
-</div>
-
 ## Introduction
 
 Simply take the cruft out of your simple CRUD app. The react-sapient library uses the React 16.6+ `Suspense` feature to create a simple way of working with simple CRUD-style Web APIs.
 
-> **WARNING**: This library uses [`Suspense`](https://reactjs.org/docs/code-splitting.html#suspense) in a way that might not *yet* be officially sanctioned (but will be), uses `React.Context` `Consumer`'s `unstable_observedBits` internally, and could end up not adding much over `react-cache` when the React team fully realizes their vision for it.
-
-This library is unstable. In reality, this is an exploration of an idea. Feedback welcome!
+> **WARNING**: This library uses [`Suspense`](https://reactjs.org/docs/code-splitting.html#suspense) in a way that might not *yet* be officially sanctioned (but will be), uses `React.Context` `Consumer`'s `unstable_observedBits` internally, and could end up not adding much over `react-cache` when the React team fully realizes their vision for it. Until then, I've found this to be a pain-free way of doing simple CRUD work!
 
 ## Step 1: Create API
 
@@ -63,7 +57,37 @@ function App() {
 ```
 
 ## Step 3: Use API
-Once the API is created and the application has been setup, the remote resources can simply accessed through an easy to use function-as-a-child component that calls the component's child using the render prop pattern:
+Once the API is created and the application has been setup, the remote resources can be simply accessed and interacted with through an easy to use hook for each resource/endpoint:
+
+```javascript
+function PostView({ postId }) {
+  const [post, { updatePost }] = api.usePost(postId);
+  return <PostItem post={post} updatePost={updatePost} />;
+}
+
+const PostItem = React.memo(({ post, updatePost }) => (
+  <>
+    <h1>{post.title}</h1>
+    <h2>{post.body}</h2>
+    <button
+      onClick={() => updatePost({ title: "New Title", body: "New Content" })}
+    >
+      Update
+    </button>
+  </>
+));
+```
+
+The call signature is `(data, actions)` where the actions can be:
+
+* `delete{Endpoint}()`
+* `update{Endpoint}(updatedData) => updatedData`
+* `create{Endpoint}(newData)` => (createdId, createdData)`
+
+with `{Endpoint}` being replaced with the name of your endpoint (`Post` in this example).
+
+### Not Using Hooks?
+The remote resources can also be accessed through an easy to use function-as-a-child component that calls the component's child using the render prop pattern:
 
 ```javascript
 function PostView({ postId }) {
@@ -89,21 +113,27 @@ const PostItem = React.memo(({ post, updatePost }) => (
 ));
 ```
 
-The call signature is `(data, actions)` where the actions can be:
-
-* `delete{Endpoint}()`
-* `update{Endpoint}(updatedData) => updatedData`
-* `create{Endpoint}(newData)` => (createdId, createdData)`
-
-where `{Endpoint}` should be replaced with the name of your endpoint (`Post` in this example).
-
-### Hook
-
-There is also an experimental hook interface for React 16.7.0-alpha:
+## Invalidation
+If updating one resource invalidates another resource, you can use the optional `invalidate` argument to a resource handler as demonstrated in the below example.
 
 ```javascript
-function PostView({ postId }) {
-  const [post, { updatePost }] = api.usePost(postId);
-  return <PostItem post={post} updatePost={updatePost} />;
-}
+const api = createApi({
+  Posts: {
+    read: async () => (await fetch(`${BASE_URL}/posts`)).json()
+  },
+  Post: {
+    read: async postId => (await fetch(`${BASE_URL}/posts/${postId}`)).json(),
+    update: async (postId, postData, invalidate) => {
+      const data = (await fetch(`${BASE_URL}/posts/${postId}`, {
+        method: "PATCH",
+        body: JSON.stringify(postData),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8"
+        }
+      })).json();
+      invalidate("Posts");
+      return data;
+    }
+  }
+});
 ```
