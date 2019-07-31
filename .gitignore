@@ -1,0 +1,13 @@
+logs
+*.log
+npm-debug.log*
+
+.npm
+node_modules/
+
+.env
+.env.test
+
+.cache
+
+dist/

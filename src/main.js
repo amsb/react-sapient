@@ -91,9 +91,17 @@ function createEndpoint(name, methods, invalidates = []) {
     })
   }
 
+  const poster = context => data => {
+    const [invalidatedValues, invalidate] = invalidator()
+    return methods.post(data, invalidate).then((responseData) => {
+      triggerUpdate(context, invalidatedValues)
+      return responseData
+    })
+  }
+
   const creator = context => data => {
     const [invalidatedValues, invalidate] = invalidator()
-    methods.create(data, invalidate).then((newId, newData) => {
+    return methods.create(data, invalidate).then((newId, newData) => {
       const createdData = newData || data
       endpointCache[newId] = { status: RESOLVED, value: createdData }
       triggerUpdate(context, invalidatedValues)
@@ -103,7 +111,7 @@ function createEndpoint(name, methods, invalidates = []) {
 
   const updater = (context, id) => data => {
     const [invalidatedValues, invalidate] = invalidator()
-    methods.update(id, data, invalidate).then(newData => {
+    return methods.update(id, data, invalidate).then(newData => {
       const updatedData = newData || data
       invalidate(name, id)
       endpointCache[id] = { status: RESOLVED, value: updatedData }
@@ -125,6 +133,7 @@ function createEndpoint(name, methods, invalidates = []) {
     return [
       value,
       {
+        ["post" + name]: poster(context),
         ["create" + name]: creator(context),
         ["update" + name]: updater(context, id),
         ["delete" + name]: deleter(context, id)
@@ -144,6 +153,16 @@ function createEndpoint(name, methods, invalidates = []) {
     }
   }
 
+  class UsePostEndpoint extends React.Component {
+    render() {
+      return (
+        <SapientContext.Consumer unstable_observedBits={endpointBits}>
+          {context => this.props.children(poster(context))}
+        </SapientContext.Consumer>
+      )
+    }
+  }
+
   class UseCreateEndpoint extends React.Component {
     render() {
       return (
@@ -156,6 +175,7 @@ function createEndpoint(name, methods, invalidates = []) {
 
   const endpoint = {
     ["Use" + name]: UseEndpoint,
+    ["UsePost" + name]: UsePostEndpoint,
     ["UseCreate" + name]: UseCreateEndpoint
   }
 
@@ -176,7 +196,16 @@ function createEndpoint(name, methods, invalidates = []) {
       return creator(context)
     }
 
+    const usePostHook = () => {
+      const dispatcher =
+        React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
+          .ReactCurrentDispatcher.current // give me observedBits or fire me
+      const context = dispatcher.useContext(SapientContext, endpointBits)
+      return poster(context)
+    }
+
     endpoint["use" + name] = useHook
+    endpoint["usePost" + name] = usePostHook
     endpoint["useCreate" + name] = useCreateHook
   }
 

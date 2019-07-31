@@ -1,8 +1,8 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { Sapient, createApi } from "react-sapient";
+import React from "react"
+import ReactDOM from "react-dom"
+import { Sapient, createApi } from "react-sapient"
 
-const BASE_URL = "https://jsonplaceholder.typicode.com";
+const BASE_URL = "https://jsonplaceholder.typicode.com"
 
 const api = createApi({
   Posts: {
@@ -17,12 +17,12 @@ const api = createApi({
         headers: {
           "Content-type": "application/json; charset=UTF-8"
         }
-      })).json();
-      invalidate("Posts");
-      return data;
+      })).json()
+      invalidate("Posts")
+      return data
     }
   }
-});
+})
 
 // function PostView({ postId }) {
 //   return (
@@ -35,8 +35,8 @@ const api = createApi({
 // }
 
 function PostView({ postId }) {
-  const [post, { updatePost }] = api.usePost(postId);
-  return <PostItem post={post} updatePost={updatePost} />;
+  const [post, { updatePost }] = api.usePost(postId)
+  return <PostItem post={post} updatePost={updatePost} />
 }
 
 const PostItem = React.memo(({ post, updatePost }) => (
@@ -44,12 +44,14 @@ const PostItem = React.memo(({ post, updatePost }) => (
     <h1>{post.title}</h1>
     <h2>{post.body}</h2>
     <button
-      onClick={() => updatePost({ title: "New Title", body: "New Content" })}
+      onClick={async () =>
+        console.log(await updatePost({ title: "New Title", body: "New Content" }))
+      }
     >
       Update
     </button>
   </>
-));
+))
 
 function App() {
   return (
@@ -60,7 +62,7 @@ function App() {
         </div>
       </React.Suspense>
     </Sapient>
-  );
+  )
 }
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(<App />, document.getElementById("root"))
