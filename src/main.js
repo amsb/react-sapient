@@ -105,7 +105,7 @@ function createEndpoint(name, methods, invalidates = []) {
       const createdData = newData || data
       endpointCache[newId] = { status: RESOLVED, value: createdData }
       triggerUpdate(context, invalidatedValues)
-      return createdData
+      return newId
     })
   }
 
@@ -116,7 +116,6 @@ function createEndpoint(name, methods, invalidates = []) {
       invalidate(name, id)
       endpointCache[id] = { status: RESOLVED, value: updatedData }
       triggerUpdate(context, invalidatedValues)
-      return updatedData
     })
   }
 

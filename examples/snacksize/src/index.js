@@ -44,8 +44,8 @@ const PostItem = React.memo(({ post, updatePost }) => (
     <h1>{post.title}</h1>
     <h2>{post.body}</h2>
     <button
-      onClick={async () =>
-        console.log(await updatePost({ title: "New Title", body: "New Content" }))
+      onClick={() =>
+        updatePost({ title: "New Title", body: "New Content" })
       }
     >
       Update
