@@ -15,7 +15,7 @@
   "module": "dist/react-sapient.esm.js",
   "browser": "dist/react-sapient.umd.js",
   "dependencies": {
-    "immer": "^8.0.1"
+    "immer": "^9.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
